@@ -1,0 +1,26 @@
+# ── Core KG / Semantic stack ───────────────────────────────
+rdflib>=7.0.0          # OWL ontology + RDF triple store + SPARQL engine
+networkx>=3.3          # Graph analytics, PageRank, community detection
+spacy>=3.7.0           # NLP (optional entity extraction extension)
+# python -m spacy download en_core_web_sm
+
+# ── Data processing ────────────────────────────────────────
+numpy>=1.26.0
+pandas>=2.1.0
+
+# ── ML / Analytics (optional sklearn upgrade) ─────────────
+scikit-learn>=1.4.0    # GradientBoostingClassifier, metrics (production upgrade)
+
+# ── Visualisation ──────────────────────────────────────────
+matplotlib>=3.8.0
+pyvis>=0.3.2           # Interactive KG / network HTML visualisation
+
+# ── Notebook ───────────────────────────────────────────────
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
+# ── GCP integration (production deployment) ───────────────
+# google-cloud-bigquery>=3.11.0
+# google-cloud-storage>=2.13.0
+# google-cloud-healthcare>=2.0.0   # FHIR R4 API client
+# apache-beam[gcp]>=2.54.0         # Cloud Dataflow jobs
