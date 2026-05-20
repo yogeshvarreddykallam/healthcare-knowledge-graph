@@ -1,0 +1,478 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix hkg:   <http://yogeshvarreddykallam.github.io/healthcare-kg#> .
+
+# ─────────────────────────────────────────────────────────────────────
+#  Ontology Declaration
+# ─────────────────────────────────────────────────────────────────────
+
+hkg: a owl:Ontology ;
+    rdfs:label "Healthcare Payer/Provider Knowledge Graph Ontology" ;
+    rdfs:comment """
+    OWL ontology for US Healthcare knowledge graph modelling payer/provider
+    ecosystems. Aligned with FHIR R4 resource types, ICD-10-CM diagnosis codes,
+    CPT procedure codes, and SNOMED-CT clinical concepts.
+
+    Covers: claims processing, care coordination, provider networks,
+    population health, fraud detection, and utilization management.
+    """ ;
+    owl:versionInfo "1.0.0" ;
+    skos:note "FHIR R4 alignment: Patient, Practitioner, Organization, Claim, Encounter, Condition, Procedure, Coverage, MedicationRequest." .
+
+# ─────────────────────────────────────────────────────────────────────
+#  CORE CLASSES  (FHIR-aligned)
+# ─────────────────────────────────────────────────────────────────────
+
+## ── Person hierarchy ────────────────────────────────────────────────
+
+hkg:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Abstract superclass for any human actor in the healthcare system." .
+
+hkg:Patient a owl:Class ;
+    rdfs:subClassOf hkg:Person ;
+    rdfs:label "Patient" ;
+    rdfs:comment "FHIR Patient — a person receiving or eligible for healthcare services." ;
+    skos:exactMatch <http://hl7.org/fhir/patient> .
+
+hkg:Practitioner a owl:Class ;
+    rdfs:subClassOf hkg:Person ;
+    rdfs:label "Practitioner" ;
+    rdfs:comment "FHIR Practitioner — a licensed healthcare provider (physician, nurse, therapist, etc.)." ;
+    skos:exactMatch <http://hl7.org/fhir/practitioner> .
+
+## ── Organisation hierarchy ──────────────────────────────────────────
+
+hkg:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "FHIR Organization — a hospital, clinic, payer, or other health entity." ;
+    skos:exactMatch <http://hl7.org/fhir/organization> .
+
+hkg:Hospital a owl:Class ;
+    rdfs:subClassOf hkg:Organization ;
+    rdfs:label "Hospital" .
+
+hkg:Clinic a owl:Class ;
+    rdfs:subClassOf hkg:Organization ;
+    rdfs:label "Clinic / Ambulatory Practice" .
+
+hkg:Payer a owl:Class ;
+    rdfs:subClassOf hkg:Organization ;
+    rdfs:label "Payer" ;
+    rdfs:comment "An insurance company or managed care organisation that covers patient costs." .
+
+hkg:PharmacyBenefit a owl:Class ;
+    rdfs:subClassOf hkg:Organization ;
+    rdfs:label "Pharmacy Benefit Manager (PBM)" .
+
+## ── Clinical events ─────────────────────────────────────────────────
+
+hkg:Encounter a owl:Class ;
+    rdfs:label "Encounter" ;
+    rdfs:comment "FHIR Encounter — a clinical visit or episode of care (inpatient, outpatient, ED, telehealth)." ;
+    skos:exactMatch <http://hl7.org/fhir/encounter> .
+
+hkg:InpatientEncounter a owl:Class ;
+    rdfs:subClassOf hkg:Encounter ;
+    rdfs:label "Inpatient Encounter" .
+
+hkg:OutpatientEncounter a owl:Class ;
+    rdfs:subClassOf hkg:Encounter ;
+    rdfs:label "Outpatient Encounter" .
+
+hkg:EmergencyEncounter a owl:Class ;
+    rdfs:subClassOf hkg:Encounter ;
+    rdfs:label "Emergency Department Encounter" .
+
+hkg:TelehealthEncounter a owl:Class ;
+    rdfs:subClassOf hkg:Encounter ;
+    rdfs:label "Telehealth Encounter" .
+
+## ── Clinical concepts ───────────────────────────────────────────────
+
+hkg:Condition a owl:Class ;
+    rdfs:label "Condition / Diagnosis" ;
+    rdfs:comment "FHIR Condition — a patient diagnosis, coded with ICD-10-CM." ;
+    skos:exactMatch <http://hl7.org/fhir/condition> .
+
+hkg:ChronicCondition a owl:Class ;
+    rdfs:subClassOf hkg:Condition ;
+    rdfs:label "Chronic Condition" ;
+    rdfs:comment "Long-term condition requiring ongoing management (diabetes, hypertension, COPD)." .
+
+hkg:AcuteCondition a owl:Class ;
+    rdfs:subClassOf hkg:Condition ;
+    rdfs:label "Acute Condition" ;
+    rdfs:comment "Short-term, episodic condition (fracture, infection, MI)." .
+
+hkg:Procedure a owl:Class ;
+    rdfs:label "Procedure" ;
+    rdfs:comment "FHIR Procedure — a clinical procedure coded with CPT or HCPCS." ;
+    skos:exactMatch <http://hl7.org/fhir/procedure> .
+
+hkg:MedicationRequest a owl:Class ;
+    rdfs:label "Medication Request" ;
+    rdfs:comment "FHIR MedicationRequest — a prescription for a drug (NDC/RxNorm coded)." ;
+    skos:exactMatch <http://hl7.org/fhir/medicationrequest> .
+
+hkg:LabResult a owl:Class ;
+    rdfs:label "Lab Result / Observation" ;
+    rdfs:comment "FHIR Observation — a diagnostic test result (LOINC coded)." .
+
+## ── Payer / administrative ──────────────────────────────────────────
+
+hkg:Claim a owl:Class ;
+    rdfs:label "Claim" ;
+    rdfs:comment "FHIR Claim — a billing request submitted by a provider to a payer." ;
+    skos:exactMatch <http://hl7.org/fhir/claim> .
+
+hkg:ProfessionalClaim a owl:Class ;
+    rdfs:subClassOf hkg:Claim ;
+    rdfs:label "Professional Claim (CMS-1500)" .
+
+hkg:InstitutionalClaim a owl:Class ;
+    rdfs:subClassOf hkg:Claim ;
+    rdfs:label "Institutional Claim (UB-04)" .
+
+hkg:Coverage a owl:Class ;
+    rdfs:label "Coverage / Insurance Plan" ;
+    rdfs:comment "FHIR Coverage — an insurance plan linking a patient to a payer." ;
+    skos:exactMatch <http://hl7.org/fhir/coverage> .
+
+hkg:ClaimResponse a owl:Class ;
+    rdfs:label "Claim Response / EOB" ;
+    rdfs:comment "FHIR ClaimResponse — payer adjudication result (paid, denied, adjusted)." .
+
+hkg:CareTeam a owl:Class ;
+    rdfs:label "Care Team" ;
+    rdfs:comment "FHIR CareTeam — set of practitioners coordinating care for a patient." .
+
+## ── Coding systems / vocabularies ──────────────────────────────────
+
+hkg:ClinicalCode a owl:Class ;
+    rdfs:label "Clinical Code" ;
+    rdfs:comment "A coded concept from a standard vocabulary (ICD-10, CPT, SNOMED, LOINC, RxNorm)." .
+
+hkg:ICD10Code a owl:Class ;
+    rdfs:subClassOf hkg:ClinicalCode ;
+    rdfs:label "ICD-10-CM Code" ;
+    rdfs:comment "International Classification of Diseases, 10th Revision, Clinical Modification — diagnosis coding." .
+
+hkg:CPTCode a owl:Class ;
+    rdfs:subClassOf hkg:ClinicalCode ;
+    rdfs:label "CPT Code" ;
+    rdfs:comment "Current Procedural Terminology — procedure and service coding (AMA)." .
+
+hkg:SNOMEDCode a owl:Class ;
+    rdfs:subClassOf hkg:ClinicalCode ;
+    rdfs:label "SNOMED-CT Code" ;
+    rdfs:comment "Systematized Nomenclature of Medicine — comprehensive clinical terminology." .
+
+hkg:LOINCCode a owl:Class ;
+    rdfs:subClassOf hkg:ClinicalCode ;
+    rdfs:label "LOINC Code" ;
+    rdfs:comment "Logical Observation Identifiers Names and Codes — lab and clinical observations." .
+
+hkg:RxNormCode a owl:Class ;
+    rdfs:subClassOf hkg:ClinicalCode ;
+    rdfs:label "RxNorm Code" ;
+    rdfs:comment "NLM vocabulary for normalised drug names." .
+
+hkg:Specialty a owl:Class ;
+    rdfs:label "Medical Specialty" ;
+    rdfs:comment "Provider specialty taxonomy code (NUCC Health Care Provider Taxonomy)." .
+
+hkg:FraudAlert a owl:Class ;
+    rdfs:label "Fraud / Waste / Abuse Alert" ;
+    rdfs:comment "A potential FWA signal derived from graph anomaly detection." .
+
+# ─────────────────────────────────────────────────────────────────────
+#  OBJECT PROPERTIES
+# ─────────────────────────────────────────────────────────────────────
+
+## ── Patient relationships ────────────────────────────────────────────
+
+hkg:hasCondition a owl:ObjectProperty ;
+    rdfs:domain hkg:Patient ;
+    rdfs:range  hkg:Condition ;
+    rdfs:label "has condition" ;
+    rdfs:comment "Patient has been diagnosed with this condition." .
+
+hkg:hasCoverage a owl:ObjectProperty ;
+    rdfs:domain hkg:Patient ;
+    rdfs:range  hkg:Coverage ;
+    rdfs:label "has coverage" .
+
+hkg:hadEncounter a owl:ObjectProperty ;
+    rdfs:domain hkg:Patient ;
+    rdfs:range  hkg:Encounter ;
+    rdfs:label "had encounter" .
+
+hkg:hasPCP a owl:ObjectProperty ;
+    rdfs:domain hkg:Patient ;
+    rdfs:range  hkg:Practitioner ;
+    rdfs:label "has primary care provider" .
+
+hkg:memberOfCareTeam a owl:ObjectProperty ;
+    rdfs:domain hkg:Patient ;
+    rdfs:range  hkg:CareTeam ;
+    rdfs:label "member of care team" .
+
+## ── Encounter relationships ─────────────────────────────────────────
+
+hkg:encounterDiagnosis a owl:ObjectProperty ;
+    rdfs:domain hkg:Encounter ;
+    rdfs:range  hkg:Condition ;
+    rdfs:label "encounter diagnosis" ;
+    rdfs:comment "Principal or secondary diagnosis for this encounter." .
+
+hkg:encounterProcedure a owl:ObjectProperty ;
+    rdfs:domain hkg:Encounter ;
+    rdfs:range  hkg:Procedure ;
+    rdfs:label "encounter procedure" .
+
+hkg:attendingProvider a owl:ObjectProperty ;
+    rdfs:domain hkg:Encounter ;
+    rdfs:range  hkg:Practitioner ;
+    rdfs:label "attending provider" .
+
+hkg:renderingProvider a owl:ObjectProperty ;
+    rdfs:domain hkg:Encounter ;
+    rdfs:range  hkg:Practitioner ;
+    rdfs:label "rendering provider" .
+
+hkg:serviceOrganization a owl:ObjectProperty ;
+    rdfs:domain hkg:Encounter ;
+    rdfs:range  hkg:Organization ;
+    rdfs:label "service organization" .
+
+hkg:forPatient a owl:ObjectProperty ;
+    rdfs:domain hkg:Encounter ;
+    rdfs:range  hkg:Patient ;
+    rdfs:label "for patient" ;
+    owl:inverseOf hkg:hadEncounter .
+
+## ── Claim relationships ─────────────────────────────────────────────
+
+hkg:claimForEncounter a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:Encounter ;
+    rdfs:label "claim for encounter" .
+
+hkg:claimForPatient a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:Patient ;
+    rdfs:label "claim for patient" .
+
+hkg:submittedBy a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:Organization ;
+    rdfs:label "submitted by" .
+
+hkg:billingProvider a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:Practitioner ;
+    rdfs:label "billing provider" .
+
+hkg:submittedTo a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:Payer ;
+    rdfs:label "submitted to payer" .
+
+hkg:hasClaimResponse a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:ClaimResponse ;
+    rdfs:label "has claim response" .
+
+hkg:claimLineCode a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:CPTCode ;
+    rdfs:label "claim line CPT code" .
+
+hkg:claimDiagnosisCode a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:ICD10Code ;
+    rdfs:label "claim diagnosis ICD-10 code" .
+
+## ── Provider relationships ──────────────────────────────────────────
+
+hkg:affiliatedWith a owl:ObjectProperty ;
+    rdfs:domain hkg:Practitioner ;
+    rdfs:range  hkg:Organization ;
+    rdfs:label "affiliated with" ;
+    rdfs:comment "Provider has admitting or practice privileges at this organization." .
+
+hkg:hasSpecialty a owl:ObjectProperty ;
+    rdfs:domain hkg:Practitioner ;
+    rdfs:range  hkg:Specialty ;
+    rdfs:label "has specialty" .
+
+hkg:referredTo a owl:ObjectProperty ;
+    rdfs:domain hkg:Practitioner ;
+    rdfs:range  hkg:Practitioner ;
+    rdfs:label "referred to" ;
+    rdfs:comment "Provider A referred a patient to Provider B — key edge for referral network analysis." .
+
+hkg:memberOfCareTeamPractitioner a owl:ObjectProperty ;
+    rdfs:domain hkg:Practitioner ;
+    rdfs:range  hkg:CareTeam ;
+    rdfs:label "member of care team" .
+
+## ── Coding relationships ────────────────────────────────────────────
+
+hkg:codedAs a owl:ObjectProperty ;
+    rdfs:label "coded as" ;
+    rdfs:comment "Links a clinical concept to its formal code in a vocabulary." .
+
+hkg:hasSNOMED a owl:ObjectProperty ;
+    rdfs:subPropertyOf hkg:codedAs ;
+    rdfs:domain hkg:Condition ;
+    rdfs:range  hkg:SNOMEDCode ;
+    rdfs:label "has SNOMED-CT code" .
+
+hkg:hasICD10 a owl:ObjectProperty ;
+    rdfs:subPropertyOf hkg:codedAs ;
+    rdfs:domain hkg:Condition ;
+    rdfs:range  hkg:ICD10Code ;
+    rdfs:label "has ICD-10-CM code" .
+
+hkg:hasCPT a owl:ObjectProperty ;
+    rdfs:subPropertyOf hkg:codedAs ;
+    rdfs:domain hkg:Procedure ;
+    rdfs:range  hkg:CPTCode ;
+    rdfs:label "has CPT code" .
+
+hkg:snomedParent a owl:ObjectProperty , owl:TransitiveProperty ;
+    rdfs:domain hkg:SNOMEDCode ;
+    rdfs:range  hkg:SNOMEDCode ;
+    rdfs:label "SNOMED parent concept" ;
+    rdfs:comment "IS-A hierarchy from SNOMED-CT (transitive)." .
+
+hkg:relatedCondition a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:domain hkg:Condition ;
+    rdfs:range  hkg:Condition ;
+    rdfs:label "related condition" ;
+    rdfs:comment "Two conditions that commonly co-occur (e.g. diabetes + hypertension)." .
+
+## ── Fraud / anomaly ──────────────────────────────────────────────────
+
+hkg:triggeredAlert a owl:ObjectProperty ;
+    rdfs:domain hkg:Claim ;
+    rdfs:range  hkg:FraudAlert ;
+    rdfs:label "triggered fraud alert" .
+
+hkg:alertInvolvesProvider a owl:ObjectProperty ;
+    rdfs:domain hkg:FraudAlert ;
+    rdfs:range  hkg:Practitioner ;
+    rdfs:label "alert involves provider" .
+
+hkg:alertInvolvesPatient a owl:ObjectProperty ;
+    rdfs:domain hkg:FraudAlert ;
+    rdfs:range  hkg:Patient ;
+    rdfs:label "alert involves patient" .
+
+# ─────────────────────────────────────────────────────────────────────
+#  DATATYPE PROPERTIES
+# ─────────────────────────────────────────────────────────────────────
+
+hkg:patientId       a owl:DatatypeProperty ; rdfs:domain hkg:Patient ;       rdfs:range xsd:string ; rdfs:label "patient ID (MRN)" .
+hkg:birthDate       a owl:DatatypeProperty ; rdfs:domain hkg:Patient ;       rdfs:range xsd:date   ; rdfs:label "birth date" .
+hkg:gender          a owl:DatatypeProperty ; rdfs:domain hkg:Patient ;       rdfs:range xsd:string ; rdfs:label "gender" .
+hkg:zipCode         a owl:DatatypeProperty ; rdfs:domain hkg:Patient ;       rdfs:range xsd:string ; rdfs:label "ZIP code" .
+hkg:riskScore       a owl:DatatypeProperty ; rdfs:domain hkg:Patient ;       rdfs:range xsd:float  ; rdfs:label "HCC risk score" .
+hkg:npi             a owl:DatatypeProperty ; rdfs:domain hkg:Practitioner ;  rdfs:range xsd:string ; rdfs:label "National Provider Identifier (NPI)" .
+hkg:providerName    a owl:DatatypeProperty ; rdfs:domain hkg:Practitioner ;  rdfs:range xsd:string ; rdfs:label "provider name" .
+hkg:claimId         a owl:DatatypeProperty ; rdfs:domain hkg:Claim ;         rdfs:range xsd:string ; rdfs:label "claim ID" .
+hkg:claimDate       a owl:DatatypeProperty ; rdfs:domain hkg:Claim ;         rdfs:range xsd:date   ; rdfs:label "claim service date" .
+hkg:claimAmount     a owl:DatatypeProperty ; rdfs:domain hkg:Claim ;         rdfs:range xsd:decimal; rdfs:label "billed amount (USD)" .
+hkg:allowedAmount   a owl:DatatypeProperty ; rdfs:domain hkg:Claim ;         rdfs:range xsd:decimal; rdfs:label "allowed amount (USD)" .
+hkg:paidAmount      a owl:DatatypeProperty ; rdfs:domain hkg:Claim ;         rdfs:range xsd:decimal; rdfs:label "paid amount (USD)" .
+hkg:claimStatus     a owl:DatatypeProperty ; rdfs:domain hkg:Claim ;         rdfs:range xsd:string ; rdfs:label "claim status (paid/denied/pending)" .
+hkg:denialReason    a owl:DatatypeProperty ; rdfs:domain hkg:ClaimResponse ; rdfs:range xsd:string ; rdfs:label "denial reason code" .
+hkg:codeValue       a owl:DatatypeProperty ; rdfs:domain hkg:ClinicalCode ;  rdfs:range xsd:string ; rdfs:label "code value" .
+hkg:codeDescription a owl:DatatypeProperty ; rdfs:domain hkg:ClinicalCode ;  rdfs:range xsd:string ; rdfs:label "code description" .
+hkg:encounterDate   a owl:DatatypeProperty ; rdfs:domain hkg:Encounter ;     rdfs:range xsd:date   ; rdfs:label "encounter date" .
+hkg:drg             a owl:DatatypeProperty ; rdfs:domain hkg:Encounter ;     rdfs:range xsd:string ; rdfs:label "DRG code (inpatient)" .
+hkg:alertType       a owl:DatatypeProperty ; rdfs:domain hkg:FraudAlert ;    rdfs:range xsd:string ; rdfs:label "alert type (unbundling/upcoding/duplicate/etc.)" .
+hkg:alertScore      a owl:DatatypeProperty ; rdfs:domain hkg:FraudAlert ;    rdfs:range xsd:float  ; rdfs:label "anomaly score (0–1)" .
+
+# ─────────────────────────────────────────────────────────────────────
+#  SEED INDIVIDUALS — ICD-10 Chronic Condition Codes
+# ─────────────────────────────────────────────────────────────────────
+
+hkg:ICD_E11   a hkg:ICD10Code ; hkg:codeValue "E11"   ; hkg:codeDescription "Type 2 Diabetes Mellitus" .
+hkg:ICD_I10   a hkg:ICD10Code ; hkg:codeValue "I10"   ; hkg:codeDescription "Essential (Primary) Hypertension" .
+hkg:ICD_J44   a hkg:ICD10Code ; hkg:codeValue "J44"   ; hkg:codeDescription "Chronic Obstructive Pulmonary Disease (COPD)" .
+hkg:ICD_I50   a hkg:ICD10Code ; hkg:codeValue "I50"   ; hkg:codeDescription "Heart Failure" .
+hkg:ICD_N18   a hkg:ICD10Code ; hkg:codeValue "N18"   ; hkg:codeDescription "Chronic Kidney Disease (CKD)" .
+hkg:ICD_F32   a hkg:ICD10Code ; hkg:codeValue "F32"   ; hkg:codeDescription "Major Depressive Disorder" .
+hkg:ICD_M79   a hkg:ICD10Code ; hkg:codeValue "M79"   ; hkg:codeDescription "Other Soft Tissue Disorders" .
+hkg:ICD_Z23   a hkg:ICD10Code ; hkg:codeValue "Z23"   ; hkg:codeDescription "Encounter for Immunization" .
+
+# ─────────────────────────────────────────────────────────────────────
+#  SEED INDIVIDUALS — CPT Procedure Codes
+# ─────────────────────────────────────────────────────────────────────
+
+hkg:CPT_99213  a hkg:CPTCode ; hkg:codeValue "99213"  ; hkg:codeDescription "Office Visit — Established Patient, Level 3" .
+hkg:CPT_99214  a hkg:CPTCode ; hkg:codeValue "99214"  ; hkg:codeDescription "Office Visit — Established Patient, Level 4" .
+hkg:CPT_99215  a hkg:CPTCode ; hkg:codeValue "99215"  ; hkg:codeDescription "Office Visit — Established Patient, Level 5" .
+hkg:CPT_99232  a hkg:CPTCode ; hkg:codeValue "99232"  ; hkg:codeDescription "Subsequent Hospital Care, Level 2" .
+hkg:CPT_93000  a hkg:CPTCode ; hkg:codeValue "93000"  ; hkg:codeDescription "Electrocardiogram (ECG/EKG)" .
+hkg:CPT_71046  a hkg:CPTCode ; hkg:codeValue "71046"  ; hkg:codeDescription "Chest X-Ray, 2 Views" .
+hkg:CPT_80053  a hkg:CPTCode ; hkg:codeValue "80053"  ; hkg:codeDescription "Comprehensive Metabolic Panel (CMP)" .
+hkg:CPT_36415  a hkg:CPTCode ; hkg:codeValue "36415"  ; hkg:codeDescription "Routine Venipuncture" .
+hkg:CPT_45378  a hkg:CPTCode ; hkg:codeValue "45378"  ; hkg:codeDescription "Colonoscopy, Diagnostic" .
+hkg:CPT_43239  a hkg:CPTCode ; hkg:codeValue "43239"  ; hkg:codeDescription "Upper GI Endoscopy with Biopsy" .
+
+# ─────────────────────────────────────────────────────────────────────
+#  SEED INDIVIDUALS — SNOMED Concept Hierarchy (partial)
+# ─────────────────────────────────────────────────────────────────────
+
+hkg:SNOMED_44054006  a hkg:SNOMEDCode ;
+    hkg:codeValue "44054006" ;
+    hkg:codeDescription "Diabetes mellitus type 2 (disorder)" .
+
+hkg:SNOMED_73211009  a hkg:SNOMEDCode ;
+    hkg:codeValue "73211009" ;
+    hkg:codeDescription "Diabetes mellitus (disorder)" ;
+    hkg:snomedParent hkg:SNOMED_73211009 .
+
+hkg:SNOMED_38341003  a hkg:SNOMEDCode ;
+    hkg:codeValue "38341003" ;
+    hkg:codeDescription "Hypertensive disorder, systemic arterial (disorder)" .
+
+hkg:SNOMED_13645005  a hkg:SNOMEDCode ;
+    hkg:codeValue "13645005" ;
+    hkg:codeDescription "Chronic obstructive lung disease (disorder)" .
+
+hkg:SNOMED_84114007  a hkg:SNOMEDCode ;
+    hkg:codeValue "84114007" ;
+    hkg:codeDescription "Heart failure (disorder)" .
+
+# ─────────────────────────────────────────────────────────────────────
+#  SEED INDIVIDUALS — Medical Specialties (NUCC Taxonomy)
+# ─────────────────────────────────────────────────────────────────────
+
+hkg:SpecPrimaryCare      a hkg:Specialty ; rdfs:label "Primary Care / Family Medicine" .
+hkg:SpecInternalMedicine a hkg:Specialty ; rdfs:label "Internal Medicine" .
+hkg:SpecCardiology       a hkg:Specialty ; rdfs:label "Cardiology" .
+hkg:SpecEndocrinology    a hkg:Specialty ; rdfs:label "Endocrinology" .
+hkg:SpecNephrology       a hkg:Specialty ; rdfs:label "Nephrology" .
+hkg:SpecPulmonology      a hkg:Specialty ; rdfs:label "Pulmonology" .
+hkg:SpecPsychiatry       a hkg:Specialty ; rdfs:label "Psychiatry" .
+hkg:SpecOrthopedics      a hkg:Specialty ; rdfs:label "Orthopedics" .
+hkg:SpecEmergencyMed     a hkg:Specialty ; rdfs:label "Emergency Medicine" .
+hkg:SpecRadiology        a hkg:Specialty ; rdfs:label "Radiology" .
+hkg:SpecPathology        a hkg:Specialty ; rdfs:label "Pathology / Lab" .
+
+# ─────────────────────────────────────────────────────────────────────
+#  AXIOMS — domain constraints and disjointness
+# ─────────────────────────────────────────────────────────────────────
+
+hkg:Patient    owl:disjointWith hkg:Practitioner .
+hkg:Claim      owl:disjointWith hkg:Encounter .
+hkg:ICD10Code  owl:disjointWith hkg:CPTCode , hkg:SNOMEDCode , hkg:LOINCCode .
+hkg:CPTCode    owl:disjointWith hkg:SNOMEDCode , hkg:LOINCCode .
